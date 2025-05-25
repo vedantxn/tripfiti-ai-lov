@@ -23,13 +23,14 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <style>
-      /* Mickey Mouse cursor */
+      /* Hide default cursor */
       * {
-        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="8" cy="8" r="3" fill="%23000"/><circle cx="24" cy="8" r="3" fill="%23000"/><circle cx="16" cy="18" r="8" fill="%23000"/><circle cx="16" cy="18" r="6" fill="%23fff"/></svg>'), auto;
+        cursor: none !important;
       }
       
-      a, button, [role="button"] {
-        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="8" cy="8" r="3" fill="%23FF6B6B"/><circle cx="24" cy="8" r="3" fill="%23FF6B6B"/><circle cx="16" cy="18" r="8" fill="%23FF6B6B"/><circle cx="16" cy="18" r="6" fill="%23fff"/></svg>'), pointer;
+      /* Ensure smooth scrolling */
+      html {
+        scroll-behavior: smooth;
       }
     </style>
   </head>
