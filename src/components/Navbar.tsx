@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add authentication state
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +42,7 @@ const Navbar = () => {
             
             {/* Sign Up Button */}
             <button className="px-6 py-2.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg text-[#1F1F1F] font-medium transition-all duration-300 hover:bg-white/30 hover:shadow-lg hover:scale-105 hover:animate-glow">
-              Sign Up
+              {isAuthenticated ? 'Enter Tripfiti' : 'Sign Up'}
             </button>
           </div>
 

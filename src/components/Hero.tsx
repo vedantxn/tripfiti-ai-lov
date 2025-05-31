@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
 
 const destinations = [
   { place: 'Bali', emoji: '🌴' },
@@ -18,6 +19,7 @@ const destinations = [
 
 const Hero = () => {
   const [currentDestination, setCurrentDestination] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add authentication state
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,7 +55,6 @@ const Hero = () => {
                 {destinations[currentDestination].emoji}
               </span>
             </span>
-            , and 10+ more...
             <br />
             already planned.
           </h1>
@@ -64,7 +65,7 @@ const Hero = () => {
 
           {/* CTA Button */}
           <button className="inline-flex items-center px-8 py-4 bg-cta-gradient text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:animate-glow hover:animate-bounce-subtle mb-16">
-            Plan your first trip
+            {isAuthenticated ? 'Create a trip' : 'Plan your first trip'}
             <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
