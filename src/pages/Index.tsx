@@ -13,9 +13,9 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5] font-sora">
       <Navbar />
       <Hero />
-      <TrustBar />
       <BenefitsSection />
       <HowItWorks />
+      <TrustBar />
       <Footer />
     </div>
   );
