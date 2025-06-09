@@ -1,6 +1,7 @@
 
 'use client';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const destinations = [
   { place: 'Bali', emoji: '🌴' },
@@ -64,12 +65,14 @@ const Hero = () => {
           </p>
 
           {/* CTA Button */}
-          <button className="inline-flex items-center px-8 py-4 bg-cta-gradient text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:animate-glow hover:animate-bounce-subtle mb-16">
-            {isAuthenticated ? 'Create a trip' : 'Plan your first trip'}
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          <Link to={'/create-trip'}>
+            <button className="inline-flex items-center px-8 py-4 bg-cta-gradient text-white font-semibold text-lg rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 hover:animate-glow hover:animate-bounce-subtle mb-16">
+              {isAuthenticated ? 'Create a trip' : 'Plan your first trip'}
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </Link>
         </div>
 
         {/* Product Mockup */}
