@@ -87,14 +87,27 @@
 @layer base {
   * {
     @apply border-border;
+    cursor: none !important;
   }
 
   body {
     @apply bg-background text-foreground;
+    cursor: none !important;
   }
 
   html {
     scroll-behavior: smooth;
+    cursor: none !important;
+  }
+
+  /* Override cursor for all interactive elements */
+  a, button, input, textarea, select, [role="button"], .cursor-pointer, [data-cursor="pointer"] {
+    cursor: none !important;
+  }
+
+  /* Ensure cursor is hidden on all elements */
+  *, *::before, *::after {
+    cursor: none !important;
   }
 }
 
