@@ -1,24 +1,13 @@
-
 import React, { useEffect, useState } from 'react';
 
 const AnimatedCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
-  const [trail, setTrail] = useState<Array<{ x: number; y: number; id: number }>>([]);
 
   useEffect(() => {
-    let trailId = 0;
-
     const updatePosition = (e: MouseEvent) => {
-      const newPosition = { x: e.clientX, y: e.clientY };
-      setPosition(newPosition);
-
-      // Add to trail
-      setTrail(prev => {
-        const newTrail = [...prev, { ...newPosition, id: trailId++ }];
-        return newTrail.slice(-8); // Keep last 8 trail points
-      });
+      setPosition({ x: e.clientX, y: e.clientY });
     };
 
     const handleMouseDown = () => setIsClicking(true);
@@ -26,14 +15,14 @@ const AnimatedCursor = () => {
 
     const handleMouseEnter = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target.matches('a, button, [role="button"], .cursor-pointer')) {
+      if (target.matches('a, button, [role="button"], .cursor-pointer, input, textarea, select, [data-cursor="pointer"]')) {
         setIsHovering(true);
       }
     };
 
     const handleMouseLeave = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (target.matches('a, button, [role="button"], .cursor-pointer')) {
+      if (target.matches('a, button, [role="button"], .cursor-pointer, input, textarea, select, [data-cursor="pointer"]')) {
         setIsHovering(false);
       }
     };
@@ -55,75 +44,44 @@ const AnimatedCursor = () => {
 
   return (
     <>
-      {/* Trail effect */}
-      {trail.map((point, index) => (
-        <div
-          key={point.id}
-          className="fixed pointer-events-none z-[9999] w-2 h-2 rounded-full"
-          style={{
-            left: point.x - 4,
-            top: point.y - 4,
-            background: `linear-gradient(135deg, #FF6B6B, #FFD93D)`,
-            opacity: (index + 1) / trail.length * 0.3,
-            transform: `scale(${(index + 1) / trail.length})`,
-            transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
-          }}
-        />
-      ))}
-
-      {/* Main cursor */}
+      {/* Main cursor dot */}
       <div
-        className={`fixed pointer-events-none z-[10000] transition-all duration-200 ease-out ${
-          isHovering ? 'scale-150' : isClicking ? 'scale-75' : 'scale-100'
+        className={`fixed pointer-events-none z-[10000] w-2 h-2 rounded-full transition-all duration-150 ease-out ${
+          isHovering 
+            ? 'bg-gradient-to-r from-orange-500 to-red-500 scale-150' 
+            : 'bg-yellow-400'
+        } ${
+          isClicking ? 'scale-75' : ''
         }`}
         style={{
-          left: position.x - 16,
-          top: position.y - 16,
+          left: position.x - 4,
+          top: position.y - 4,
+          transform: `translate(0, 0) scale(${isClicking ? 0.75 : isHovering ? 1.5 : 1})`,
         }}
-      >
-        {/* Outer ring */}
-        <div className={`w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-          isHovering 
-            ? 'border-[#FF6B6B] bg-[#FF6B6B]/20 animate-pulse' 
-            : 'border-[#FFD93D] bg-[#FFD93D]/10'
-        }`}>
-          {/* Inner elements */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            {isHovering ? (
-              // Location pin for hover state
-              <div className="text-[#FF6B6B] animate-bounce">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-              </div>
-            ) : (
-              // Airplane for normal state
-              <div className={`text-[#FFD93D] transition-transform duration-300 ${
-                isClicking ? 'rotate-45 scale-75' : 'rotate-12'
-              }`}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                </svg>
-              </div>
-            )}
-          </div>
-        </div>
+      />
 
-        {/* Glow effect */}
-        <div className={`absolute inset-0 rounded-full transition-all duration-300 ${
-          isHovering 
-            ? 'bg-gradient-to-r from-[#FF6B6B]/30 to-[#FFD93D]/30 blur-md scale-150' 
-            : 'bg-gradient-to-r from-[#FFD93D]/20 to-[#FF6B6B]/20 blur-sm'
-        }`} />
-      </div>
+      {/* Outer ring for hover state */}
+      {isHovering && (
+        <div
+          className="fixed pointer-events-none z-[9999] w-8 h-8 rounded-full border-2 transition-all duration-200 ease-out"
+          style={{
+            left: position.x - 16,
+            top: position.y - 16,
+            borderColor: isHovering ? '#f97316' : '#facc15', // orange-500 : yellow-400
+            opacity: 0.6,
+          }}
+        />
+      )}
 
       {/* Click ripple effect */}
       {isClicking && (
         <div
-          className="fixed pointer-events-none z-[9998] w-16 h-16 rounded-full border-2 border-[#FF6B6B] animate-ping"
+          className="fixed pointer-events-none z-[9998] w-12 h-12 rounded-full border animate-ping"
           style={{
-            left: position.x - 32,
-            top: position.y - 32,
+            left: position.x - 24,
+            top: position.y - 24,
+            borderColor: isHovering ? '#dc2626' : '#eab308', // red-600 : yellow-500
+            borderWidth: '2px',
           }}
         />
       )}

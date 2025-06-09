@@ -127,7 +127,7 @@ const CreateTrip = () => {
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="text-2xl font-bold text-[#1F1F1F] font-sora">
+            <Link to="/" className="text-2xl font-bold text-[#1F1F1F] font-sora cursor-pointer" data-cursor="pointer">
               TripFiti
             </Link>
 
@@ -139,7 +139,8 @@ const CreateTrip = () => {
               </div>
               <Button 
                 variant="outline" 
-                className="bg-cta-gradient text-white border-none hover:scale-105 transition-transform duration-200"
+                className="bg-cta-gradient text-white border-none hover:scale-105 transition-transform duration-200 cursor-pointer"
+                data-cursor="pointer"
               >
                 My Trips
               </Button>
@@ -179,7 +180,8 @@ const CreateTrip = () => {
                       value={destination}
                       onChange={(e) => handleDestinationChange(e.target.value)}
                       onFocus={() => destination && setShowDropdown(true)}
-                      className="min-h-[60px] text-lg resize-none pr-12 border-2 border-gray-200 focus:border-[#FF6B6B] transition-colors duration-200"
+                      className="min-h-[60px] text-lg resize-none pr-12 border-2 border-gray-200 focus:border-[#FF6B6B] transition-colors duration-200 cursor-pointer"
+                      data-cursor="pointer"
                     />
                     <MapPin className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
                   </div>
@@ -191,6 +193,7 @@ const CreateTrip = () => {
                           key={place.id}
                           className="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150"
                           onClick={() => selectPlace(place)}
+                          data-cursor="pointer"
                         >
                           <div className="font-semibold text-[#1F1F1F]">{place.name}</div>
                           <div className="text-sm text-gray-500">{place.description}</div>
@@ -219,14 +222,15 @@ const CreateTrip = () => {
                     </div>
                   </div>
                   
-                  <div className="relative">
+                  <div className="relative" data-cursor="pointer">
                     <Slider
                       value={days}
                       onValueChange={setDays}
                       max={20}
                       min={1}
                       step={1}
-                      className="w-full"
+                      className="w-full cursor-pointer"
+                      data-cursor="pointer"
                     />
                     <style jsx>{`
                       .slider-track {
@@ -249,8 +253,8 @@ const CreateTrip = () => {
                   <h3 className="text-2xl font-bold text-[#1F1F1F]">What is your budget?</h3>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                      <TooltipTrigger data-cursor="pointer">
+                        <Info className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer" data-cursor="pointer" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <div className="space-y-2 text-sm">
@@ -273,6 +277,7 @@ const CreateTrip = () => {
                           : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
                       onClick={() => setBudget(option.id)}
+                      data-cursor="pointer"
                     >
                       <div className="text-center space-y-3">
                         <div className="text-4xl">{option.emoji}</div>
@@ -301,6 +306,7 @@ const CreateTrip = () => {
                           : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
                       onClick={() => setCompanions(option.id)}
+                      data-cursor="pointer"
                     >
                       <div className="text-center space-y-3">
                         <div className="text-4xl">{option.emoji}</div>
@@ -316,11 +322,12 @@ const CreateTrip = () => {
                 <Button
                   onClick={handleGenerateTrip}
                   disabled={!isFormValid || isGenerating}
-                  className={`px-12 py-6 text-xl font-semibold rounded-2xl transition-all duration-300 ${
+                  className={`px-12 py-6 text-xl font-semibold rounded-2xl transition-all duration-300 cursor-pointer ${
                     isFormValid
                       ? 'bg-cta-gradient text-white hover:scale-105 hover:shadow-2xl'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
+                  data-cursor="pointer"
                 >
                   {isGenerating ? (
                     <div className="flex items-center space-x-3">
