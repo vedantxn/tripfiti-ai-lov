@@ -1,29 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, Info, MapPin, Calendar, DollarSign, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { useAuth } from '@/contexts/AuthContext';
+import { createTrip, updateUserCredits } from '@/lib/supabase';
+import { toast } from '@/components/ui/sonner';
+import GooglePlacesAutocomplete from '@/components/GooglePlacesAutocomplete';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-// Mock Google Places API data
-const mockPlaces = [
-  { id: 1, name: 'Paris, France', description: 'City of Light' },
-  { id: 2, name: 'Tokyo, Japan', description: 'Modern metropolis' },
-  { id: 3, name: 'New York, USA', description: 'The Big Apple' },
-  { id: 4, name: 'London, UK', description: 'Historic capital' },
-  { id: 5, name: 'Rome, Italy', description: 'Eternal City' },
-  { id: 6, name: 'Barcelona, Spain', description: 'Mediterranean gem' },
-  { id: 7, name: 'Amsterdam, Netherlands', description: 'Canal city' },
-  { id: 8, name: 'Dubai, UAE', description: 'Desert oasis' },
-  { id: 9, name: 'Bali, Indonesia', description: 'Tropical paradise' },
-  { id: 10, name: 'Sydney, Australia', description: 'Harbor city' },
-];
 
 const budgetOptions = [
   {
@@ -60,65 +49,127 @@ const getDayEmoji = (days: number) => {
   return '🌍';
 };
 
-const getSliderColor = (days: number) => {
-  if (days <= 3) return 'from-green-400 to-green-600';
-  if (days <= 7) return 'from-blue-400 to-blue-600';
-  if (days <= 14) return 'from-purple-400 to-purple-600';
-  return 'from-red-400 to-red-600';
-};
-
 const CreateTrip = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
   const [destination, setDestination] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredPlaces, setFilteredPlaces] = useState(mockPlaces);
   const [days, setDays] = useState([7]);
   const [budget, setBudget] = useState('');
   const [companions, setCompanions] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+  }, [user, navigate]);
+
+  const generateMockAIResponse = (tripData: any) => {
+    // Mock AI response - in a real app, this would call OpenAI API
+    return {
+      destination: tripData.destination,
+      duration: tripData.duration,
+      budget: tripData.budget,
+      companion: tripData.companion,
+      hotels: [
+        {
+          name: "Grand Mountain Resort",
+          address: "123 Mountain View Dr",
+          price: "$180/night",
+          rating: 4.5,
+          image: "https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg"
+        }
+      ],
+      itinerary: [
+        {
+          day: 1,
+          activities: [
+            {
+              time: "9:00 AM",
+              title: "Scenic Overlook",
+              description: "Beautiful mountain views",
+              duration: "2 hours",
+              price: "Free"
+            }
+          ]
+        }
+      ],
+      totalCost: "$1,247",
+      generatedAt: new Date().toISOString()
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleDestinationChange = (value: string) => {
-    setDestination(value);
-    const filtered = mockPlaces.filter(place =>
-      place.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredPlaces(filtered);
-    setShowDropdown(value.length > 0 && filtered.length > 0);
   };
 
-  const selectPlace = (place: typeof mockPlaces[0]) => {
-    setDestination(place.name);
-    setShowDropdown(false);
-  };
+  const handleGenerateTrip = async () => {
+    if (!user || !profile) {
+      toast.error('Please sign in to generate a trip');
+      navigate('/auth');
+      return;
+    }
 
-  const handleGenerateTrip = () => {
     if (!destination || !budget || !companions) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (profile.credits <= 0) {
+      toast.error('You need at least 1 credit to generate a trip. Please add credits to continue.');
       return;
     }
     
     setIsGenerating(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      // Generate mock AI response
+      const aiResponse = generateMockAIResponse({
+        destination,
+        duration: days[0],
+        budget,
+        companion: companions
+      });
+
+      // Create trip in database
+      const { data: trip, error: tripError } = await createTrip({
+        user_id: user.id,
+        destination,
+        duration: days[0],
+        budget,
+        companion: companions,
+        ai_response: aiResponse
+      });
+
+      if (tripError) {
+        throw new Error(tripError.message);
+      }
+
+      // Deduct credit
+      const { error: creditError } = await updateUserCredits(user.id, profile.credits - 1);
+      if (creditError) {
+        throw new Error('Failed to update credits');
+      }
+
+      // Refresh profile to update credits
+      await refreshProfile();
+
+      toast.success('Trip generated successfully!');
+      navigate(`/view-trip/${trip.id}`);
+    } catch (error) {
+      console.error('Error generating trip:', error);
+      toast.error('Failed to generate trip. Please try again.');
+    } finally {
       setIsGenerating(false);
-      alert('Trip generated successfully!');
-    }, 3000);
+    }
   };
 
   const isFormValid = destination && budget && companions;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-hero-gradient flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B6B]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-hero-gradient">
@@ -135,15 +186,17 @@ const CreateTrip = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <span>💰</span>
-                <span>Credits: 3</span>
+                <span>Credits: {profile?.credits || 0}</span>
               </div>
-              <Button 
-                variant="outline" 
-                className="bg-cta-gradient text-white border-none hover:scale-105 transition-transform duration-200 cursor-pointer"
-                data-cursor="pointer"
-              >
-                My Trips
-              </Button>
+              <Link to="/dashboard">
+                <Button 
+                  variant="outline" 
+                  className="bg-cta-gradient text-white border-none hover:scale-105 transition-transform duration-200 cursor-pointer"
+                  data-cursor="pointer"
+                >
+                  My Trips
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -172,36 +225,11 @@ const CreateTrip = () => {
                   <h3 className="text-2xl font-bold text-[#1F1F1F]">What is destination of choice?</h3>
                 </div>
                 
-                <div className="relative" ref={dropdownRef}>
-                  <div className="relative">
-                    <Textarea
-                      ref={textareaRef}
-                      placeholder="Search for a destination..."
-                      value={destination}
-                      onChange={(e) => handleDestinationChange(e.target.value)}
-                      onFocus={() => destination && setShowDropdown(true)}
-                      className="min-h-[60px] text-lg resize-none pr-12 border-2 border-gray-200 focus:border-[#FF6B6B] transition-colors duration-200 cursor-pointer"
-                      data-cursor="pointer"
-                    />
-                    <MapPin className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
-                  </div>
-                  
-                  {showDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 max-h-60 overflow-y-auto z-10">
-                      {filteredPlaces.map((place) => (
-                        <div
-                          key={place.id}
-                          className="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150"
-                          onClick={() => selectPlace(place)}
-                          data-cursor="pointer"
-                        >
-                          <div className="font-semibold text-[#1F1F1F]">{place.name}</div>
-                          <div className="text-sm text-gray-500">{place.description}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <GooglePlacesAutocomplete
+                  value={destination}
+                  onChange={setDestination}
+                  placeholder="Search for a destination..."
+                />
               </div>
 
               {/* Days */}
@@ -232,11 +260,6 @@ const CreateTrip = () => {
                       className="w-full cursor-pointer"
                       data-cursor="pointer"
                     />
-                    <style>{`
-                      .slider-track {
-                        background: linear-gradient(to right, ${getSliderColor(days[0])});
-                      }
-                    `}</style>
                   </div>
                   
                   <div className="flex justify-between text-sm text-gray-500">
@@ -319,11 +342,22 @@ const CreateTrip = () => {
 
               {/* Generate Button */}
               <div className="text-center pt-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+                {profile && profile.credits <= 0 && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-red-600 font-medium">
+                      You need at least 1 credit to generate a trip. 
+                      <Link to="/dashboard" className="ml-2 text-red-700 underline hover:no-underline">
+                        Add credits here
+                      </Link>
+                    </p>
+                  </div>
+                )}
+                
                 <Button
                   onClick={handleGenerateTrip}
-                  disabled={!isFormValid || isGenerating}
+                  disabled={!isFormValid || isGenerating || (profile && profile.credits <= 0)}
                   className={`px-12 py-6 text-xl font-semibold rounded-2xl transition-all duration-300 cursor-pointer ${
-                    isFormValid
+                    isFormValid && profile && profile.credits > 0
                       ? 'bg-cta-gradient text-white hover:scale-105 hover:shadow-2xl'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
