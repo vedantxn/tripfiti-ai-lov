@@ -134,12 +134,8 @@ const CreateTrip = () => {
             {/* Right side */}
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-<<<<<<< HEAD
-                <span className="font-semibold hover:text-[#1F1F1F] cursor-pointer hover:scale-105 transition-transform duration-200" data-cursor="pointer">Credits</span>
-=======
                 <span>💰</span>
                 <span>Credits: 3</span>
->>>>>>> 822e839ec8f73a1ec1212e16c2f6c8e68961cf9d
               </div>
               <Button 
                 variant="outline" 
@@ -236,11 +232,7 @@ const CreateTrip = () => {
                       className="w-full cursor-pointer"
                       data-cursor="pointer"
                     />
-<<<<<<< HEAD
                     <style>{`
-=======
-                    <style jsx>{`
->>>>>>> 822e839ec8f73a1ec1212e16c2f6c8e68961cf9d
                       .slider-track {
                         background: linear-gradient(to right, ${getSliderColor(days[0])});
                       }
