@@ -346,7 +346,7 @@ const CreateTrip = () => {
                   <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-red-600 font-medium">
                       You need at least 1 credit to generate a trip. 
-                      <Link to="/dashboard" className="ml-2 text-red-700 underline hover:no-underline">
+                      <Link to="/dashboard\" className="ml-2 text-red-700 underline hover:no-underline">
                         Add credits here
                       </Link>
                     </p>
